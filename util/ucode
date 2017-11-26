@@ -1,0 +1,35 @@
+#!/usr/bin/env node
+
+var _ = require('lodash');
+var fs = require('fs');
+var csv = require('csv');
+var parser = csv.parse({delimiter: '\t'}, function(err, data){
+  var ucode0 = new Buffer(2048);
+  var ucode1 = new Buffer(2048);
+  var ucode2 = new Buffer(2048);
+  var mask = mask = _.map(data, function (row) { return { or: row[0], and: row[1], ucode2: row[2], ucode1: row[3], ucode0: row[4] }; });
+  for (var i = 0; i < ucode0.length; ++i) {
+    var k = 0;
+    for (var l = 0; l < mask.length; ++l) {
+      if (((i | mask[l].or) === 0x7ff) &&
+          ((i & mask[l].and) === 0x0)) {
+        ucode0[i] = mask[l].ucode0;
+        ucode1[i] = mask[l].ucode1;
+        ucode2[i] = mask[l].ucode2;
+        k++;
+      }
+    }
+    if (k == 0) {
+      console.error('No mask at 0x' + i.toString(16));
+      process.exit(1);
+    }
+    if (k > 1) {
+      console.error('Extra mask(s) at 0x' + i.toString(16));
+      process.exit(1);
+    }
+  }
+  fs.writeFileSync('ucode0.bin', ucode0);
+  fs.writeFileSync('ucode1.bin', ucode1);
+  fs.writeFileSync('ucode2.bin', ucode2);
+});
+fs.createReadStream('ucode.tsv').pipe(parser);
