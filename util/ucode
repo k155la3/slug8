@@ -20,16 +20,18 @@ var parser = csv.parse({delimiter: '\t'}, function(err, data){
       }
     }
     if (k == 0) {
-      console.error('No mask at 0x' + i.toString(16));
-      process.exit(1);
+      ucode0[i] = 0xff;
+      ucode1[i] = 0xff;
+      ucode2[i] = 0xff;
     }
     if (k > 1) {
       console.error('Extra mask(s) at 0x' + i.toString(16));
       process.exit(1);
     }
+    console.log(((ucode2[i] << 16) | (ucode1[i] << 8) | ucode0[i]).toString(16))
   }
-  fs.writeFileSync('ucode0.bin', ucode0);
-  fs.writeFileSync('ucode1.bin', ucode1);
-  fs.writeFileSync('ucode2.bin', ucode2);
+  //fs.writeFileSync('ucode0.bin', ucode0);
+  //fs.writeFileSync('ucode1.bin', ucode1);
+  //fs.writeFileSync('ucode2.bin', ucode2);
 });
 fs.createReadStream('ucode.tsv').pipe(parser);

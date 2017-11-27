@@ -9,7 +9,7 @@ module slug(
   logic rst;
   logic stage;
   logic[3:0] sel;
-  logic[7:0] control;
+  logic[23:0] control;
 
   initial begin
     stage = 0;
@@ -55,10 +55,10 @@ module slug(
     .y(data)
   );
 
-  rom #(8, 8) rom(
+  rom #(24, 11, "ucode.data") ucode(
     .clk(dclk),
     .rst(rst),
-    .a(data),
+    .a({3'b0, data}),
     .y(control)
   );
 
