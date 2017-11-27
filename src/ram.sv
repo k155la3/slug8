@@ -1,5 +1,5 @@
 module ram(
-  input wclk, rclk0, rclk1, we, re0, re1,
+  input wclk, rclk0, rclk1, rst, we, re0, re1,
   input tri[ADDR_WIDTH-1:0] a,
   input tri[DATA_WIDTH-1:0] x,
   output tri[DATA_WIDTH-1:0] y
@@ -20,13 +20,16 @@ module ram(
       m[a] <= x;
 
   always @(posedge rclk0)
-    if (re0)
+    if (!rst)
+      r0 <= 0;
+    else if (re0)
       r0 <= m[a];
 
   always @(posedge rclk1)
-    if (re1)
+    if (!rst)
+      r1 <= 0;
+    else if (re1)
       r1 <= m[a];
 
-  assign y = re0 ? r0 : {DATA_WIDTH{1'bz}};
-  assign y = re1 ? r1 : {DATA_WIDTH{1'bz}};
+  assign y = re0 ? r0 : (re1 ? r1 : {DATA_WIDTH{1'bz}});
 endmodule

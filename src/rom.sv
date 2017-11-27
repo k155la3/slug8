@@ -1,5 +1,5 @@
 module rom(
-  input clk,
+  input clk, rst,
   input logic[ADDR_WIDTH-1:0] a,
   output logic[DATA_WIDTH-1:0] y
 );
@@ -12,5 +12,9 @@ module rom(
   end
 
   always @(posedge clk)
-    y <= m[a];
+    if (!rst)
+      y <= 0;
+    else
+      y <= m[a];
+
 endmodule
